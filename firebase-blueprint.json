@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "SiteConfig": {
+      "title": "Site Configuration",
+      "description": "Global configuration for the portfolio site containing links to media.",
+      "type": "object",
+      "properties": {
+        "essayLink": {
+          "type": "string",
+          "description": "URL to the essay document."
+        },
+        "pptLink": {
+          "type": "string",
+          "description": "URL to the presentation document."
+        },
+        "videoLink": {
+          "type": "string",
+          "description": "URL to the video."
+        },
+        "surveyUrl": {
+          "type": "string",
+          "description": "URL to the survey form."
+        },
+        "chartDataUrl": {
+          "type": "string",
+          "description": "URL to the survey data CSV/API."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "Admins": {
+      "title": "Admins",
+      "description": "List of admin users.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "config/{configId}": {
+      "schema": {
+        "$ref": "#/entities/SiteConfig"
+      },
+      "description": "Global configuration, usually at config/global"
+    },
+    "admins/{userId}": {
+      "schema": {
+        "$ref": "#/entities/Admins"
+      },
+      "description": "Admin users"
+    }
+  }
+}

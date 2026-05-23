@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() {
+      return request.resource.data;
+    }
+    
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    // Only allow specific admin or users in admins collection
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'pratham.tyagi369@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidSiteConfig(data) {
+      return (
+        (!data.keys().hasAny(['essayLink']) || (data.essayLink is string && data.essayLink.size() <= 2000)) &&
+        (!data.keys().hasAny(['pptLink']) || (data.pptLink is string && data.pptLink.size() <= 2000)) &&
+        (!data.keys().hasAny(['videoLink']) || (data.videoLink is string && data.videoLink.size() <= 2000)) &&
+        (!data.keys().hasAny(['surveyUrl']) || (data.surveyUrl is string && data.surveyUrl.size() <= 2000)) &&
+        (!data.keys().hasAny(['chartDataUrl']) || (data.chartDataUrl is string && data.chartDataUrl.size() <= 2000)) &&
+        (!data.keys().hasAny(['updatedAt']) || data.updatedAt == request.time)
+      );
+    }
+
+    match /config/{configId} {
+      allow get: if isValidId(configId);
+      allow create: if isAdmin() && isValidId(configId) && isValidSiteConfig(incoming());
+      allow update: if isAdmin() && isValidId(configId) && isValidSiteConfig(incoming());
+    }
+
+    match /admins/{userId} {
+      allow get: if isAdmin() && isValidId(userId);
+      allow read: if false;
+      allow write: if false; // Only manage via console for now
+    }
+  }
+}

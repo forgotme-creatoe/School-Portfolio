@@ -1,0 +1,6 @@
+{
+  "name": "Project Portfolio Dashboard",
+  "description": "An interactive, modern portfolio to natively present Word documents, PowerPoint presentations, videos, and survey data.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
