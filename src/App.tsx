@@ -5,7 +5,6 @@ import localforage from 'localforage';
 import { Hero } from './components/Hero';
 import { UploadCard } from './components/UploadCard';
 import { SurveyChart } from './components/SurveyChart';
-import { SurveyEmbedCard } from './components/SurveyEmbedCard';
 import { ParticlesBackground } from './components/ParticlesBackground';
 
 export default function App() {
@@ -226,16 +225,8 @@ export default function App() {
             />
           </motion.div>
           
-          {/* External Survey Embed Form */}
-          <motion.div variants={itemVariants} className="col-span-1 md:col-span-1 lg:col-span-1 relative h-full w-full group/bento">
-             <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500/30 to-amber-500/30 rounded-[2rem] blur opacity-0 group-hover/bento:opacity-100 transition duration-1000 group-hover/bento:duration-200 pointer-events-none" />
-             <div className="h-full w-full relative bg-zinc-950 rounded-3xl">
-                <SurveyEmbedCard isEditMode={isEditMode} surveyUrl={surveyUrl} onUpdateUrl={(url) => handleUpdateLink('surveyUrl', url)} />
-             </div>
-          </motion.div>
-
           {/* Survey Chart Module */}
-          <motion.div variants={itemVariants} className="col-span-1 lg:col-span-2 relative h-full w-full group/bento">
+          <motion.div variants={itemVariants} className="col-span-1 lg:col-span-3 relative h-full w-full group/bento">
             <div className="absolute -inset-0.5 bg-gradient-to-r from-teal-500/30 to-green-500/30 rounded-[2rem] blur opacity-0 group-hover/bento:opacity-100 transition duration-1000 group-hover/bento:duration-200 pointer-events-none" />
             <div className="h-full w-full relative bg-zinc-950 rounded-3xl">
                <SurveyChart isEditMode={isEditMode} chartDataUrl={chartDataUrl} onUpdateUrl={(url) => handleUpdateLink('chartDataUrl', url)} />

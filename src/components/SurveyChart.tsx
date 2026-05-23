@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { motion, AnimatePresence } from 'motion/react';
-import { BarChart3, Radio, RefreshCw, Database } from 'lucide-react';
+import { BarChart3, Radio, RefreshCw, Database, Maximize } from 'lucide-react';
 import localforage from 'localforage';
 import { cn } from '../lib/utils';
 
@@ -25,10 +25,22 @@ export function SurveyChart({
   const [dataUrl, setDataUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [chartData, setChartData] = useState(mockDataTemplate);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setDataUrl(chartDataUrl || '');
   }, [chartDataUrl]);
+
+  const handleFullscreen = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (chartContainerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        chartContainerRef.current.requestFullscreen();
+      }
+    }
+  };
 
   const handleConnect = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,7 +90,7 @@ export function SurveyChart({
           </motion.div>
           <div>
             <h3 className="text-xl font-display font-medium text-white flex items-center gap-2 transition-colors group-hover/chart:text-teal-50">
-              Survey Results
+              Survey
               {isLinked && (
                 <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-[10px] uppercase font-bold tracking-wider shadow-[0_0_10px_rgba(34,197,94,0.2)]" title="Connected">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-[pulse_1.5s_ease-in-out_infinite] shadow-[0_0_5px_rgba(34,197,94,0.5)]" /> Live Sync
@@ -135,7 +147,7 @@ export function SurveyChart({
                     </motion.div>
                     <h4 className="text-lg font-medium text-white mb-2">Connect Results Data</h4>
                     <p className="text-sm text-zinc-400 mb-8 font-light">
-                      Paste the API Endpoint or published CSV URL of your survey results to sync the live chart. Leave blank to use mock data for your presentation.
+                      Paste the link to your custom survey results dashboard or website to embed it here. Leave blank to use mock chart data.
                     </p>
                     
                     <div className="w-full flex bg-zinc-950 rounded-full border border-zinc-800 focus-within:border-teal-500/40 focus-within:ring-4 focus-within:ring-teal-500/10 transition-all overflow-hidden p-1.5 shadow-inner">
@@ -175,7 +187,7 @@ export function SurveyChart({
                   >
                     <Database size={32} className="relative z-10" />
                   </motion.div>
-                  <h3 className="text-xl font-display font-medium text-white/50 mb-2">Survey Results</h3>
+                  <h3 className="text-xl font-display font-medium text-white/50 mb-2">Survey</h3>
                   <p className="text-sm text-zinc-600 max-w-[250px] leading-relaxed">
                     Data source has not been connected yet.
                   </p>
@@ -183,48 +195,71 @@ export function SurveyChart({
             )
           ) : (
             <motion.div
-              key="chart"
+              key="iframe"
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-full h-full p-6 pt-4"
+              className="w-full h-full relative"
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3f3f46" strokeOpacity={0.4} />
-                  <XAxis 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#a1a1aa', fontSize: 13, fontWeight: 500 }} 
-                    dy={15}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#71717a', fontSize: 12 }}
-                    dx={-5}
-                  />
-                  <Tooltip 
-                    cursor={{ fill: '#27272a', opacity: 0.5 }}
-                    contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', borderRadius: '16px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', padding: '12px 16px' }}
-                    itemStyle={{ color: '#fff', fontWeight: 600 }}
-                    labelStyle={{ color: '#a1a1aa', marginBottom: '8px' }}
-                  />
-                  <Bar dataKey="count" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1500} animationEasing="ease-out">
-                    {chartData.map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={index === 0 ? '#2dd4bf' : index === 1 ? '#e879f9' : '#818cf8'} 
-                        className="transition-all duration-300 hover:opacity-80 drop-shadow-md"
+              {dataUrl === 'mock' ? (
+                <div className="w-full h-full p-6 pt-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#3f3f46" strokeOpacity={0.4} />
+                      <XAxis 
+                        dataKey="name" 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#a1a1aa', fontSize: 13, fontWeight: 500 }} 
+                        dy={15}
                       />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                      <YAxis 
+                        axisLine={false} 
+                        tickLine={false} 
+                        tick={{ fill: '#71717a', fontSize: 12 }}
+                        dx={-5}
+                      />
+                      <Tooltip 
+                        cursor={{ fill: '#27272a', opacity: 0.5 }}
+                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#3f3f46', borderRadius: '16px', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', padding: '12px 16px' }}
+                        itemStyle={{ color: '#fff', fontWeight: 600 }}
+                        labelStyle={{ color: '#a1a1aa', marginBottom: '8px' }}
+                      />
+                      <Bar dataKey="count" radius={[6, 6, 0, 0]} isAnimationActive={true} animationDuration={1500} animationEasing="ease-out">
+                        {chartData.map((entry, index) => (
+                          <Cell 
+                            key={`cell-${index}`} 
+                            fill={index === 0 ? '#2dd4bf' : index === 1 ? '#e879f9' : '#818cf8'} 
+                            className="transition-all duration-300 hover:opacity-80 drop-shadow-md"
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div ref={chartContainerRef} className="w-full h-full relative group/doc">
+                  <iframe 
+                    src={dataUrl}
+                    className="w-full h-full border-none opacity-0 animate-[fadeIn_0.5s_ease-in-out_0.5s_forwards] rounded-b-3xl bg-zinc-900"
+                    title="External Survey Data"
+                    loading="lazy"
+                  />
+                  
+                  <div className="absolute top-4 left-4 z-40 opacity-0 group-hover/doc:opacity-100 transition-opacity">
+                    <button 
+                      onClick={handleFullscreen}
+                      className="flex items-center space-x-2 px-3 py-1.5 bg-zinc-950/80 text-white font-medium rounded-full shadow-lg hover:bg-zinc-800 border border-white/10 transition-all backdrop-blur-md"
+                    >
+                      <Maximize size={14} />
+                      <span className="text-xs">Full Screen</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
