@@ -158,9 +158,9 @@ export default function App() {
                   alert("Access denied: You must be signed in as pratham.tyagi369@gmail.com to edit.");
                   await auth.signOut();
                 }
-              } catch (err) {
+              } catch (err: any) {
                  console.error("Auth error", err);
-                 alert("Could not sign in to edit mode.");
+                 alert(`Could not sign in to edit mode: ${err.message || err}`);
               }
             } else {
               setIsEditMode(false);
